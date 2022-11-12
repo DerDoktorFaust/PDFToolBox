@@ -26,3 +26,8 @@ That is, to get the most speed out of tesseract, this app does not use pytessera
 on your computer. It uses commands from the above progams, ocrmypdf and tesseract, and runs them as if they were in a terminal.
 Thus, Pyinstaller does not like this. I am currently searching for a workaround, but the standard methods have not worked
 (i.e. using instead of subprocess.run, using subprocess.Popen; using subprocess.PIPE, etc).
+
+##Update Log
+
+Version 1.0
+-Initial Commit
