@@ -5,6 +5,8 @@ import subprocess
 import time
 import pdftotext
 import os
+import ocrmypdf
+
 
 
 class Ui_MainWindow(object):
@@ -133,18 +135,24 @@ class Ui_MainWindow(object):
         self.status_of_operations_label.setText(_translate("MainWindow", "Status of Operations"))
         self.exit_button.setText(_translate("MainWindow", "Exit"))
 
-
     def get_langs(self):
-
+        """"
+        #This is the way to get all installed languages available on the user's system
+        #The issue is that Pyinstaller cannnot run subprocess commands
+        #So the user can never create a stand-alone application
 
         self.ocr_languages_list.addItems(subprocess.run(['tesseract', '--list-langs'],
-                                                          capture_output=True, text=True).stdout.splitlines())
-        self.ocr_languages_list.takeItem(0) #removes first output line that is just informational output for command above
-
+                                                        capture_output=True, text=True).stdout.splitlines())
+        self.ocr_languages_list.takeItem(
+            0)  # removes first output line that is just informational output for command above
+        """
+        self.ocr_languages_list.addItem("eng")
+        self.ocr_languages_list.addItem("deu")
+        self.ocr_languages_list.addItem('script/Fraktur')
+        self.ocr_languages_list.addItem("fra")
 
     def clearFiles(self):
         self.file_list.clear()
-
 
     def removeFiles(self):
         if self.file_list.count() > 0:  # prevents crash if nothing in list
@@ -153,16 +161,15 @@ class Ui_MainWindow(object):
             for idx in indices:
                 self.file_list.takeItem(idx)
 
-
     def browseFiles(self):
 
-        new_files, _ = QtWidgets.QFileDialog.getOpenFileNames(None, "Select Files to Merge", f"/Users/{self.username}/Desktop/",
+        new_files, _ = QtWidgets.QFileDialog.getOpenFileNames(None, "Select Files to Merge",
+                                                              f"/Users/{self.username}/Desktop/",
                                                               "PDF Files(*.pdf)")  # *.pdf limits selection to pdf files only
         if new_files:  # check to make sure files were selected
             # new_files is separate from file_names in case user browses multiple times before merging
             for file_name in new_files:
                 self.file_list.addItem(file_name)
-
 
     def mergePDFs(self):
         output_file_name = 'merged.pdf'  # default name for file output
@@ -174,7 +181,8 @@ class Ui_MainWindow(object):
 
             for i in range(self.file_list.count()):
                 if output_file_name + ".pdf" == self.file_list.item(i).text():
-                    error_message = QtWidgets.QMessageBox.critical(None, "Error!", "Error! Your file name is already in use!")
+                    error_message = QtWidgets.QMessageBox.critical(None, "Error!",
+                                                                   "Error! Your file name is already in use!")
                     return
 
             self.console_text_box.append(f"Merging PDFs into {output_file_name}")
@@ -199,7 +207,6 @@ class Ui_MainWindow(object):
                 self.console_text_box.repaint()
                 QtCore.QCoreApplication.processEvents()
 
-
     def ocrPDFs(self):
 
         languages = [item.text() for item in self.ocr_languages_list.selectedItems()]
@@ -215,22 +222,26 @@ class Ui_MainWindow(object):
             output_pdf = input_pdf[0:-4] + "-OCR.pdf"
 
             start_time = time.time()
-            cmd = ["ocrmypdf", "--output-type", "pdf", "--redo-ocr", input_pdf, output_pdf]
 
-            subprocess.run(cmd, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+            #This subprocess version works, but not in a Pyinstaller app
+            ##cmd = ["ocrmypdf", "--output-type", "pdf", "--redo-ocr", input_pdf, output_pdf]
+            ##subprocess.run(cmd, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+
+            ocrmypdf.ocr(input_pdf, output_pdf, output_type="pdf", redo_ocr=True, language=languages, clean=True)
 
             end_time = time.time()
 
-            self.console_text_box.append(f"Finished OCRing File {self.file_list.item(i).text()} in {end_time - start_time} seconds.")
+            self.console_text_box.append(
+                f"Finished OCRing File {self.file_list.item(i).text()} in {end_time - start_time} seconds.")
             self.console_text_box.repaint()
             QtCore.QCoreApplication.processEvents()
 
         total_time_end = time.time()
 
-        self.console_text_box.append(f"COMPLETED OCR PROCESS FOR ALL FILES IN {total_time_end-total_time_start} SECONDS")
+        self.console_text_box.append(
+            f"COMPLETED OCR PROCESS FOR ALL FILES IN {total_time_end - total_time_start} SECONDS")
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
-
 
     def extractText(self):
         for i in range(self.file_list.count()):
@@ -259,7 +270,6 @@ class Ui_MainWindow(object):
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
-
     def extractAnnotations(self):
 
         for i in range(self.file_list.count()):
@@ -282,7 +292,6 @@ class Ui_MainWindow(object):
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
-
     def exitApp(self):
         QtCore.QCoreApplication.instance().quit()
 
@@ -290,6 +299,7 @@ class Ui_MainWindow(object):
 class ListDragWidget(QtWidgets.QListWidget):
     """Creates a list widget that allows user to drag and drop PDF
     files into the widget area to add these files."""
+
     def __init__(self, parent=None):
         super(ListDragWidget, self).__init__(parent)
         self.setDragDropMode(QtWidgets.QAbstractItemView.DragDropMode.DragDrop)
@@ -320,6 +330,7 @@ class ListDragWidget(QtWidgets.QListWidget):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
