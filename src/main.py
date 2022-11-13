@@ -1,3 +1,9 @@
+##### Install Instructions
+# use py2app
+# create a setup.py file with py2applet --make-setup src/main.py
+# delete the any old dist and build directories
+# Then run python setup.py py2app -A
+
 import PyQt6
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyPDF4 import PdfFileMerger
