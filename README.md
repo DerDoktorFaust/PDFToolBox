@@ -26,6 +26,9 @@ If you do want an "app" version of this, you will need to run p2app, but use the
 
 ##Update Log
 
+#Version 1.0.2
+-Changed method of dropping files into drag-and-drop widget to prevent errors on Windows and Linux systems
+
 #Version 1.0.1
 -Added in non-subprocess calls to ocrmypdf
 -Removed subprocess.run calls for getting installed languages
