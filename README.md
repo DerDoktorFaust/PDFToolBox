@@ -6,6 +6,7 @@ PDFToolBox allows the following functions:
 2. OCR PDFs
 3. Extract All Text
 4. Extract Annotations
+5. Convert Word documents to PDF
 
 This comes with a GUI running on PyQT6 (PyQt5 version is in the source directory).
 
@@ -25,6 +26,10 @@ Creating a distributable app seems impossible at this time. OCRmyPDF uses Pikepd
 If you do want an "app" version of this, you will need to run p2app, but use the -A flag. Py2app will also not package this app due to an issue either with p2app or the Pillow package. Nevertheless, if you use the -A flag and keep the python script files forever in the same location, you can use it like a regular app on your system.
 
 ##Update Log
+
+#Version 1.1
+-Added conversion of Word files to PDF files with a button
+-Added ability to add Word files and automatically convert to PDF when merging
 
 #Version 1.0.2
 -Changed method of dropping files into drag-and-drop widget to prevent errors on Windows and Linux systems
