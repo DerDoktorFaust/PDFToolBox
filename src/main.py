@@ -12,6 +12,7 @@ import time
 import pdftotext
 import os
 import ocrmypdf
+import docx2pdf
 
 
 
@@ -83,6 +84,10 @@ class Ui_MainWindow(object):
         self.extract_annotations_button.setGeometry(QtCore.QRect(890, 270, 151, 32))
         self.extract_annotations_button.setObjectName("extract_annotations_button")
 
+        self.convert_files_button = QtWidgets.QPushButton(self.centralwidget)
+        self.convert_files_button.setGeometry(QtCore.QRect(890, 330, 151, 32))
+        self.convert_files_button.setObjectName("convert_files_button")
+
         self.clear_language_selections_button = QtWidgets.QPushButton(self.centralwidget)
         self.clear_language_selections_button.setGeometry(QtCore.QRect(600, 380, 191, 32))
         self.clear_language_selections_button.setObjectName("clear_language_selections_button")
@@ -120,6 +125,7 @@ class Ui_MainWindow(object):
         self.ocr_pdfs_button.clicked.connect(self.ocrPDFs)
         self.extract_text_button.clicked.connect(self.extractText)
         self.extract_annotations_button.clicked.connect(self.extractAnnotations)
+        self.convert_files_button.clicked.connect(self.convertFiles)
         self.exit_button.clicked.connect(self.exitApp)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -137,6 +143,7 @@ class Ui_MainWindow(object):
         self.ocr_pdfs_button.setText(_translate("MainWindow", "OCR PDFs"))
         self.extract_text_button.setText(_translate("MainWindow", "Extract Text"))
         self.extract_annotations_button.setText(_translate("MainWindow", "Extract Annotations"))
+        self.convert_files_button.setText(_translate("MainWindow", "Convert to PDF"))
         self.clear_language_selections_button.setText(_translate("MainWindow", "Clear Language Selections"))
         self.status_of_operations_label.setText(_translate("MainWindow", "Status of Operations"))
         self.exit_button.setText(_translate("MainWindow", "Exit"))
@@ -201,6 +208,9 @@ class Ui_MainWindow(object):
 
                 # create PDF merger object
                 pdf_merger = PdfFileMerger(open(output_file_name, "wb"))
+
+                # Ensure that all files are PDFs
+                self.convertFiles()
 
                 for i in range(self.file_list.count()):
                     # get everything from the file list
@@ -298,6 +308,35 @@ class Ui_MainWindow(object):
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
+    def convertFiles(self):
+
+        for i in range(self.file_list.count()):
+            file = self.file_list.item(i).text()
+            if file.endswith("docx") or file.endswith("doc"):
+                self.convert_word_to_pdf(i)
+
+        self.console_text_box.append(f"COMPLETED CONVERTING ALL FILES TO PDF")
+        self.console_text_box.repaint()
+        QtCore.QCoreApplication.processEvents()
+
+    def convert_word_to_pdf(self, i):
+        original_file = self.file_list.item(i).text()
+        output_file = ""
+
+        if original_file.endswith("docx"):
+            output_file = original_file.replace(".docx", ".pdf")
+        elif original_file.endswith("doc"):
+            output_file = original_file.replace(".doc", ".pdf")
+
+        docx2pdf.convert(original_file, output_file)
+
+        self.file_list.item(i).setText(output_file)
+
+        self.console_text_box.append(
+            f"Finished converting Word File {original_file} to PDF file {output_file}.")
+        self.console_text_box.repaint()
+        QtCore.QCoreApplication.processEvents()
+
     def exitApp(self):
         QtCore.QCoreApplication.instance().quit()
 
@@ -328,7 +367,7 @@ class ListDragWidget(QtWidgets.QListWidget):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
             for file in event.mimeData().urls():
-                if file.path().endswith('.pdf'):  # make sure it is a PDF file
+                if file.path().endswith('.pdf') or file.path().endswith('.docx') or file.path().endswith('.doc'):  # make sure it is a PDF file
                     self.addItem(file.toLocalFile())
         else:
             super(ListDragWidget, self).dropEvent(event)
