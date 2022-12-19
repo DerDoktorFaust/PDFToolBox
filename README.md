@@ -14,8 +14,9 @@ You can drag and drop files into the files widget.
 
 Under available OCR languages, if you select nothing, it will default to English. Commented out code contains a subprocess method to get all of the user's installed languages and list them. The uncommented code just contains the languages I use. Feel free to reverse the comments in your own application, though I recommend just inputting your own language codes because otherwise the list gets really long.
 
-You need the following installed on your computer (I recommend using brew to install them):
-1. tesseract (brew install tesseract)
+You need the following installed on your computer:
+1. tesseract 
+2. Microsoft Word (if you want to convert .docx and .doc files to PDF)
 
 The app runs, as noted above, on tesseract. If you need additional languages, add them through tesseract. 
 
@@ -26,6 +27,9 @@ Creating a distributable app seems impossible at this time. OCRmyPDF uses Pikepd
 If you do want an "app" version of this, you will need to run p2app, but use the -A flag. Py2app will also not package this app due to an issue either with p2app or the Pillow package. Nevertheless, if you use the -A flag and keep the python script files forever in the same location, you can use it like a regular app on your system.
 
 ##Update Log
+
+#Version 1.1.1
+-Added garbage collection of converted PDF files when merging is used (i.e. a Word document gets converted to PDF when its part of the merging process; this new PDF is now deleted); when simply converting a Word doc to PDF, the PDF is not deleted
 
 #Version 1.1
 -Added conversion of Word files to PDF files with a button
