@@ -3,6 +3,7 @@
 # create a setup.py file with py2applet --make-setup src/main.py
 # delete the any old dist and build directories
 # Then run python setup.py py2app -A
+# requirements: tesseract, Microsoft Word, wkhtmltopdf (homebrew)
 
 import PyQt6
 from PyQt6 import QtCore, QtGui, QtWidgets
@@ -13,6 +14,7 @@ import pdftotext
 import os
 import ocrmypdf
 import docx2pdf
+import pdfkit
 
 
 
@@ -319,15 +321,20 @@ class Ui_MainWindow(object):
     def convertFiles(self, from_merge=False):
 
         for i in range(self.file_list.count()):
+
             file = self.file_list.item(i).text()
+
             if file.endswith("docx") or file.endswith("doc"):
-                self.convert_word_to_pdf(i)
+                self.convertWordToPdf(i)
+
+            elif file.endswith("html"):
+                self.convertHTMLToPDF(i)
 
         self.console_text_box.append(f"COMPLETED CONVERTING ALL FILES TO PDF")
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
-    def convert_word_to_pdf(self, i):
+    def convertWordToPdf(self, i):
         original_file = self.file_list.item(i).text()
         output_file = ""
 
@@ -345,6 +352,24 @@ class Ui_MainWindow(object):
 
         self.console_text_box.append(
             f"Finished converting Word File {original_file} to PDF file {output_file}.")
+        self.console_text_box.repaint()
+        QtCore.QCoreApplication.processEvents()
+
+    def convertHTMLToPDF(self, i):
+        original_file = self.file_list.item(i).text()
+
+        if original_file.endswith("html"):
+            output_file = original_file.replace(".html", ".pdf")
+
+        pdfkit.from_file(original_file, output_file, options={"enable-local-file-access": ""})
+
+        self.file_list.item(i).setText(output_file)
+
+        # add to garbage bin so if it was just merging, the extraneous files will be deleted later
+        self.garbage_bin.append(output_file)
+
+        self.console_text_box.append(
+            f"Finished converting HTML File {original_file} to PDF file {output_file}.")
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
@@ -388,7 +413,7 @@ class ListDragWidget(QtWidgets.QListWidget):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
             for file in event.mimeData().urls():
-                if file.path().endswith('.pdf') or file.path().endswith('.docx') or file.path().endswith('.doc'):  # make sure it is a PDF file
+                if file.path().endswith('.pdf') or file.path().endswith('.docx') or file.path().endswith('.doc') or file.path().endswith('.html'):  # make sure it is a PDF file
                     self.addItem(file.toLocalFile())
         else:
             super(ListDragWidget, self).dropEvent(event)
