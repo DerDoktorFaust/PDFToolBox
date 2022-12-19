@@ -27,6 +27,9 @@ If you do want an "app" version of this, you will need to run p2app, but use the
 
 ##Update Log
 
+#Version 1.1.1
+-Added garbage collection of converted PDF files when merging is used (i.e. a Word document gets converted to PDF when its part of the merging process; this new PDF is now deleted); when simply converting a Word doc to PDF, the PDF is not deleted
+
 #Version 1.1
 -Added conversion of Word files to PDF files with a button
 -Added ability to add Word files and automatically convert to PDF when merging
