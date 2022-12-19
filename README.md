@@ -14,8 +14,9 @@ You can drag and drop files into the files widget.
 
 Under available OCR languages, if you select nothing, it will default to English. Commented out code contains a subprocess method to get all of the user's installed languages and list them. The uncommented code just contains the languages I use. Feel free to reverse the comments in your own application, though I recommend just inputting your own language codes because otherwise the list gets really long.
 
-You need the following installed on your computer (I recommend using brew to install them):
-1. tesseract (brew install tesseract)
+You need the following installed on your computer:
+1. tesseract 
+2. Microsoft Word (if you want to convert .docx and .doc files to PDF)
 
 The app runs, as noted above, on tesseract. If you need additional languages, add them through tesseract. 
 
