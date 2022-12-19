@@ -23,6 +23,8 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
 
+        self.garbage_bin = []
+
         self.file_list = ListDragWidget(self.centralwidget)
         self.file_list.setGeometry(QtCore.QRect(40, 90, 511, 271))
         self.file_list.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.MultiSelection)
@@ -187,6 +189,10 @@ class Ui_MainWindow(object):
     def mergePDFs(self):
         output_file_name = 'merged.pdf'  # default name for file output
 
+        #make sure there are no extraneous files hanging around if user previously converted files
+        # i.e. if they convert some first, then run merge, those files would get deleted too
+        self.garbageCollection(delete_files=False)
+
         if self.file_list.count() > 1:  # no merging unless there are enough documents to merge
 
             output_file_name, _ = QtWidgets.QFileDialog.getSaveFileName(
@@ -218,6 +224,8 @@ class Ui_MainWindow(object):
 
                 pdf_merger.write(output_file_name)
                 pdf_merger.close()
+
+                self.garbageCollection(delete_files=True)
 
                 self.console_text_box.append(f"COMPLETED MERGING PROCESS OF ALL FILES INTO {output_file_name}")
                 self.console_text_box.repaint()
@@ -308,7 +316,7 @@ class Ui_MainWindow(object):
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
-    def convertFiles(self):
+    def convertFiles(self, from_merge=False):
 
         for i in range(self.file_list.count()):
             file = self.file_list.item(i).text()
@@ -332,10 +340,23 @@ class Ui_MainWindow(object):
 
         self.file_list.item(i).setText(output_file)
 
+        # add to garbage bin so if it was just merging, the extraneous files will be deleted later
+        self.garbage_bin.append(output_file)
+
         self.console_text_box.append(
             f"Finished converting Word File {original_file} to PDF file {output_file}.")
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
+
+    def garbageCollection(self, delete_files=False):
+        #delete any extra files created that user will not need
+
+        if delete_files:
+            for item in self.garbage_bin:
+                os.remove(item)
+
+        self.garbage_bin.clear()
+
 
     def exitApp(self):
         QtCore.QCoreApplication.instance().quit()
