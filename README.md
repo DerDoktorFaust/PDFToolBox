@@ -17,6 +17,7 @@ Under available OCR languages, if you select nothing, it will default to English
 You need the following installed on your computer:
 1. tesseract 
 2. Microsoft Word (if you want to convert .docx and .doc files to PDF)
+3. wkhtmltopdf
 
 The app runs, as noted above, on tesseract. If you need additional languages, add them through tesseract. 
 
@@ -27,6 +28,10 @@ Creating a distributable app seems impossible at this time. OCRmyPDF uses Pikepd
 If you do want an "app" version of this, you will need to run p2app, but use the -A flag. Py2app will also not package this app due to an issue either with p2app or the Pillow package. Nevertheless, if you use the -A flag and keep the python script files forever in the same location, you can use it like a regular app on your system.
 
 ##Update Log
+
+#Version 1.2
+-Added ability to convert HTML files to PDF
+-Added ability to merge HTML files with PDF files (HTML files are automatically converted to PDF when added to file list)
 
 #Version 1.1.1
 -Added garbage collection of converted PDF files when merging is used (i.e. a Word document gets converted to PDF when its part of the merging process; this new PDF is now deleted); when simply converting a Word doc to PDF, the PDF is not deleted
