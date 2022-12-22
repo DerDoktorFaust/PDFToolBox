@@ -330,6 +330,9 @@ class Ui_MainWindow(object):
             elif file.endswith("html"):
                 self.convertHTMLToPDF(i)
 
+            elif file.endswith("djvu"):
+                self.convertDjvuToPDF(i)
+
         self.console_text_box.append(f"COMPLETED CONVERTING ALL FILES TO PDF")
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
@@ -373,6 +376,34 @@ class Ui_MainWindow(object):
         self.console_text_box.repaint()
         QtCore.QCoreApplication.processEvents()
 
+
+    def convertDjvuToPDF(self, i):
+        original_file = self.file_list.item(i).text()
+
+        if original_file.endswith(".djvu"):
+            output_file = original_file.replace(".djvu", ".pdf")
+
+        cmd = ["djvu2pdf", original_file]
+
+        #running this command creates the output file in the directory where PDFToolBoxGui runs from
+        # so we will need to move it to the correct directory after creation
+        subprocess.run(cmd, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+
+        #get file name without the full path
+        file_name = os.path.basename(output_file)
+
+        os.rename(file_name, output_file)
+
+        self.file_list.item(i).setText(output_file)
+
+        # add to garbage bin so if it was just merging, the extraneous files will be deleted later
+        self.garbage_bin.append(output_file)
+
+        self.console_text_box.append(
+            f"Finished converting Djvu File {original_file} to PDF file {output_file}.")
+        self.console_text_box.repaint()
+        QtCore.QCoreApplication.processEvents()
+
     def garbageCollection(self, delete_files=False):
         #delete any extra files created that user will not need
 
@@ -413,7 +444,7 @@ class ListDragWidget(QtWidgets.QListWidget):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
             for file in event.mimeData().urls():
-                if file.path().endswith('.pdf') or file.path().endswith('.docx') or file.path().endswith('.doc') or file.path().endswith('.html'):  # make sure it is a PDF file
+                if file.path().endswith('.pdf') or file.path().endswith('.djvu') or file.path().endswith('.docx') or file.path().endswith('.doc') or file.path().endswith('.html'):  # make sure it is a PDF file
                     self.addItem(file.toLocalFile())
         else:
             super(ListDragWidget, self).dropEvent(event)
