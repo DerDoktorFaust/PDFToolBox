@@ -1,9 +1,8 @@
 ##### Install Instructions
-# use py2app
-# create a setup.py file with py2applet --make-setup src/main.py
-# delete the any old dist and build directories
-# Then run python setup.py py2app -A
+# use Pyinstaller
+# Build command: pyinstaller PDFMerger.py --target-arch arm64 --windowed
 # requirements: tesseract, Microsoft Word, wkhtmltopdf (homebrew)
+# The ocrmypdf library cannot be imported into Pyinstaller, however (see below)
 
 import PyQt6
 from PyQt6 import QtCore, QtGui, QtWidgets
@@ -12,7 +11,7 @@ import subprocess
 import time
 import pdftotext
 import os
-import ocrmypdf
+#import ocrmypdf #see ocrpdf function for why this is commented out
 import docx2pdf
 import pdfkit
 
@@ -250,10 +249,13 @@ class Ui_MainWindow(object):
             start_time = time.time()
 
             #This subprocess version works, but not in a Pyinstaller app
-            ##cmd = ["ocrmypdf", "--output-type", "pdf", "--redo-ocr", input_pdf, output_pdf]
-            ##subprocess.run(cmd, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+            cmd = ["ocrmypdf", "--output-type", "pdf", "--redo-ocr", input_pdf, output_pdf]
+            subprocess.run(cmd, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
 
-            ocrmypdf.ocr(input_pdf, output_pdf, output_type="pdf", redo_ocr=True, language=languages, clean=True)
+            #The ocrmypdf library cannot be imported and compiled into a Pyinstaller app
+            #Pyinstaller cannot include pikepdf and it causes the Pyinstaller process to fail
+            #and create an app that will never open.
+            #ocrmypdf.ocr(input_pdf, output_pdf, output_type="pdf", redo_ocr=True, language=languages, clean=True)
 
             end_time = time.time()
 
